@@ -13,6 +13,16 @@ app = flask.Flask("esperanto_app")
 app.config["SECRET_KEY"] = generate_password_hash(f"{time.perf_counter()}")
 
 
+@app.errorhandler(404)
+def error_404(error):
+    return flask.render_template("404.html"), 404
+
+
+@app.errorhandler(500)
+def error_500(error):
+    return flask.render_template("500.html"), 500
+
+
 def is_authenticated():
     return flask.session.get("is_autenticated")
 
@@ -46,6 +56,8 @@ def dictionary_page():
 def word_page(id):
     cursor.execute(f"SELECT word, translations FROM words WHERE id={id}")
     word_data = cursor.fetchone()
+    if not word_data:
+        return flask.redirect("/dictionary")
     return flask.render_template("word.html", word_data=word_data)
 
 
