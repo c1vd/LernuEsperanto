@@ -75,9 +75,11 @@ def dictionary_page():
 
 
 # Words and Books pages
+
+# TODO: add editing of translations of words by users
 @app.route("/dictionary/<id>")
 def word_page(id):
-    cursor.execute(f"SELECT word, translations FROM words WHERE id={id}")
+    cursor.execute(f"SELECT id, word, translations FROM words WHERE id={id}")
     word_data = cursor.fetchone()
     if not word_data:
         return flask.redirect("/dictionary")
@@ -90,6 +92,16 @@ def read_book(id):
         return flask.send_file(f"./books/{id}.pdf")
     except:
         return flask.redirect("/")
+
+
+# Editing of words
+@app.route("/edit_word", methods=["POST"])
+def edit_word():
+    if is_authenticated():
+        print(post("translations"), post("id"))
+        cursor.execute(f"UPDATE words SET translations='{post('translations')}' WHERE id={post('id')}")
+        connection.commit()
+    return json.dumps({"status": "OK"})
 
 
 # Login system
@@ -153,16 +165,7 @@ def find_books():
     return flask.render_template("find_books.html", books=data)
 
 
-# Users panel
-@app.route("/my_books")
-def my_books():
-    if not is_authenticated():
-        return flask.redirect("/")
-    books = cursor.execute(f"SELECT id, name_of_book, author FROM books WHERE user = '{session['username']}'")
-    return flask.render_template("my_books.html", books=books)
-
-
-# Uploading and deleting books
+# Uploading and deleting books by users
 @app.route("/upload_book", methods=["GET", "POST"])
 def upload_book():
     if not is_authenticated():
@@ -197,6 +200,14 @@ def admin_panel():
     return flask.render_template("admin.html")
 
 
+@app.route("/user_panel")
+def user_panel():
+    if not is_authenticated():
+        return flask.redirect("/")
+    books = cursor.execute(f"SELECT id, name_of_book, author FROM books WHERE user = '{session['username']}'")
+    return flask.render_template("user_panel.html", books=books)
+
+
 # Functions that used by admins
 @app.route("/approve_book", methods=["POST"])
 def approve_book():
@@ -219,6 +230,8 @@ def admin_delete_book():
 
 @app.route("/get_unverified_books", methods=["POST"])
 def get_unverified_books():
+    if not is_admin():
+        return flask.redirect("/")
     cursor.execute("SELECT id, name_of_book, description, author FROM books WHERE NOT is_verified")
     books = cursor.fetchall()
     return json.dumps({"status": 'OK', "books": books})

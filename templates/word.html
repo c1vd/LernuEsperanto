@@ -1,4 +1,28 @@
 {% extends "main.html" %}
 {% block content %}
-{{ word_data[0] }} - {{ word_data[1] }}
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+
+{% if session["is_authenticated"] %}
+<button onclick="edit_translations()" id="edit">Edit</button>
+{% endif %}
+{{ word_data[1] }} - <div id="translations">{{ word_data[2] }}</div><div id="new_translations_div"><input id="new_translations" type="text"><button onclick="submit_translations()">Submit</button><button onclick="edit_translations()">Cancel</button></div>
+<script>
+    $("#new_translations_div").toggle()
+    $("#new_translations").val(document.getElementById("translations").innerText).val()
+    function edit_translations(){
+        $("#edit").toggle()
+        $("#translations").toggle()
+        $("#new_translations_div").toggle()
+    }
+    async function submit_translations(){
+        $.ajax({
+            url: "/edit_word",
+            type: "POST",
+            data: {"id": {{word_data[0]}}, "translations": $("#new_translations").val()},
+            success: function(response){},
+            error: function(error){console.log(error)}
+        })
+        location.reload()
+    }
+</script>
 {% endblock %}
