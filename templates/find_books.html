@@ -1,0 +1,11 @@
+{% extends "main.html" %}
+{% block content %}
+{% for book in books %}
+<a href="/book/{{book[0]}}">{{ book[1] }} - {{ book[3] }}</a>
+<a class="dropdown-toggle" id="dropdown1" data-bs-toggle="dropdown"
+   aria-expanded="false"></a>
+<ul class="dropdown-menu" aria-labelledby="dropdown1">
+    <li>{{ book[2] }}</li>
+</ul>
+{% endfor %}
+{% endblock %}

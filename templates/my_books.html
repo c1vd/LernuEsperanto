@@ -1,0 +1,20 @@
+{% extends "main.html" %}
+{% block content %}
+<script>
+    function delete_book(id){
+        $.ajax({
+            url: "/delete_book",
+            type: "POST",
+            data: {"id": id},
+            success: function (response){},
+            error: function (error){console.log(error)}
+        })
+        window.location.href = "/my_books"
+        location.reload()
+    }
+</script>
+{% for book in books %}
+<a href="/book/{{ book[0] }}">{{ book[1] }} - {{ book[2] }}</a>
+<button onclick="delete_book({{ book[0] }})">Delete</button>
+{% endfor %}
+{% endblock %}

@@ -1,0 +1,35 @@
+{% extends "main.html" %}
+{% block content %}
+<script>
+    async function get_list_of_words(){
+        console.log(document.getElementById("word_to_find").value)
+        $.ajax({
+                type: "POST",
+                url: "/find_words",
+                data: {"word_to_find": document.getElementById("word_to_find").value},
+                success: function (response){
+                    response = JSON.parse(response)
+                    console.log(response["words"])
+                    document.getElementById("words").innerHTML = ""
+                    for(var i = 0; i < response["words"].length; i++){
+                        document.getElementById("words").innerHTML += "<a href='/dictionary/" +response["words"][i][0] + "'>" + response["words"][i][1] + " - " + response["words"][i][2] + "</a>" + "</br>"
+                    }
+                },
+                error: function (error){
+                    console.log(error)
+                    console.log("Error")
+                }
+            }
+        )
+        return true
+    }
+</script>
+
+<input id="word_to_find" name="word_to_find">
+<button onclick="get_list_of_words()">Click</button>
+
+<p id="words">
+
+</p>
+
+{% endblock %}

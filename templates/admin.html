@@ -1,0 +1,43 @@
+{% extends "main.html" %}
+{% block content %}
+<script>
+    function verify_book(id){
+        $.ajax({
+            url: "/approve_book",
+            type: "POST",
+            data: {"id": id},
+            success: function (response){},
+            error: function(error){console.log(error)}
+        })
+    }
+    function delete_book(id){
+        $.ajax({
+            url: "/admin_delete_book",
+            type: "POST",
+            data: {"id": id},
+            success: function (response){},
+            error: function (error){console.log(error)}
+        })
+        window.location.href = "/my_books"
+        location.reload()
+    }
+    function reset(){
+        $.ajax({
+            url: "/get_unverified_books",
+            type: "POST",
+            success: function (response){
+                response = JSON.parse(response)
+                document.getElementById("books").innerHTML = ""
+                for(var i = 0; i < response["books"].length; i++){
+                    document.getElementById("books").innerHTML += "<a href='/book/" + response["books"][i][0] + "'>" + response["books"][i][1] + "</a><button onclick='verify_book(" + response['books'][i][0] + ")'>Approve</button><button onclick='delete_book(" + response['books'][i][0] + ")'>Decline</button>"
+                }
+            },
+            error: function (error){console.log(error)}
+        })
+    }
+</script>
+<button onclick="reset()">Reset</button>
+<p id="books">
+
+</p>
+{% endblock %}
