@@ -37,6 +37,15 @@ def get(key):
     return flask.request.args.get(key)
 
 
+def is_admin():
+    if not is_authenticated():
+        return False
+    data = cursor.execute(f"SELECT is_admin FROM users WHERE id='{session.get('id')}'").fetchone()
+    if not data:
+        return False
+    return bool(data[0])
+
+
 # Main page
 @app.route("/")
 def index():
@@ -121,16 +130,14 @@ def login():
 
 @app.route("/logout")
 def logout():
-    session["username"] = None
-    session["id"] = None
-    session["is_authenticated"] = False
+    session.clear()
     return json.dumps({"status": 'OK'})
 
 
 # Finding words and books
 @app.route("/find_words", methods=["POST"])
 def find_words():
-    word = str(flask.request.values.get("word_to_find"))
+    word = str(post("word_to_find"))
     print(word)
     cursor.execute(
         f"SELECT id, word, translations FROM words WHERE LOWER(word) LIKE LOWER('%{word}%') OR LOWER(translations) LIKE LOWER('%{word}%')")
@@ -140,7 +147,7 @@ def find_words():
 
 @app.route("/find_books", methods=["GET"])
 def find_books():
-    name_of_book = flask.request.values.get("book_name")
+    name_of_book = get("book_name")
     data = cursor.execute(
         f"SELECT id, name_of_book, description, author, user FROM books WHERE LOWER(name_of_book) LIKE '%{name_of_book}%' AND is_verified").fetchall()
     return flask.render_template("find_books.html", books=data)
@@ -185,21 +192,15 @@ def delete_book():
 # Users and admins panels
 @app.route("/admin")
 def admin_panel():
-    if not is_authenticated():
-        return flask.redirect("/")
-    is_admin = cursor.execute(f"SELECT is_admin FROM users WHERE name='{session.get('username')}'").fetchone()[0]
-    if not is_admin:
+    if not is_admin():
         return flask.redirect("/")
     return flask.render_template("admin.html")
 
 
-# Functions that using by admins
+# Functions that used by admins
 @app.route("/approve_book", methods=["POST"])
 def approve_book():
-    if not is_authenticated():
-        return flask.redirect("/")
-    is_admin = cursor.execute(f"SELECT is_admin FROM users WHERE name='{session.get('username')}'").fetchone()[0]
-    if not is_admin:
+    if not is_admin():
         return flask.redirect("/")
     cursor.execute(f"UPDATE books SET is_verified=1 WHERE id='{post("id")}'")
     connection.commit()
@@ -208,10 +209,7 @@ def approve_book():
 
 @app.route("/admin_delete_book", methods=["POST"])
 def admin_delete_book():
-    if not is_authenticated():
-        return flask.redirect("/")
-    is_admin = cursor.execute(f"SELECT is_admin FROM users WHERE name='{session.get('username')}'").fetchone()[0]
-    if not is_admin:
+    if not is_admin():
         return flask.redirect("/")
     cursor.execute(
         f"DELETE FROM books WHERE id='{post('id')}'")
