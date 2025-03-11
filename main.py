@@ -140,7 +140,7 @@ def login():
     return flask.render_template("login.html")
 
 
-@app.route("/logout")
+@app.route("/logout", methods=["POST"])
 def logout():
     session.clear()
     return json.dumps({"status": 'OK'})
@@ -150,7 +150,6 @@ def logout():
 @app.route("/find_words", methods=["POST"])
 def find_words():
     word = str(post("word_to_find"))
-    print(word)
     cursor.execute(
         f"SELECT id, word, translations FROM words WHERE LOWER(word) LIKE LOWER('%{word}%') OR LOWER(translations) LIKE LOWER('%{word}%')")
 

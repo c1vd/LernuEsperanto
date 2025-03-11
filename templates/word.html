@@ -1,7 +1,5 @@
 {% extends "main.html" %}
 {% block content %}
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
-
 {% if session["is_authenticated"] %}
 <button onclick="edit_translations()" id="edit">Edit</button>
 {% endif %}
@@ -19,10 +17,10 @@
             url: "/edit_word",
             type: "POST",
             data: {"id": {{word_data[0]}}, "translations": $("#new_translations").val()},
-            success: function(response){},
+            success: function(response){location.reload()},
             error: function(error){console.log(error)}
         })
-        location.reload()
+
     }
 </script>
 {% endblock %}

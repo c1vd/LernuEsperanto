@@ -16,10 +16,10 @@
         function logout(){
             $.ajax({
                 url: "/logout",
-                success: function (response){},
+                type: "POST",
+                success: function (response){location.reload()},
                 error: function (error){console.log(error)}
             })
-            location.reload()
         }
     </script>
     <style>
