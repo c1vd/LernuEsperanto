@@ -1,6 +1,12 @@
 {% extends "main.html" %}
 {% block content %}
 <script>
+    async function add_word(){
+        
+    }
+    async function write_word(word_data){
+        document.getElementById("words").innerHTML += "<a href='/dictionary/" +word_data[0] + "'>" + word_data[1] + " - " + word_data[2] + "</a>" + "</br>"
+    }
     async function get_list_of_words(){
         console.log(document.getElementById("word_to_find").value)
         $.ajax({
@@ -12,7 +18,7 @@
                     console.log(response["words"])
                     document.getElementById("words").innerHTML = ""
                     for(var i = 0; i < response["words"].length; i++){
-                        document.getElementById("words").innerHTML += "<a href='/dictionary/" +response["words"][i][0] + "'>" + response["words"][i][1] + " - " + response["words"][i][2] + "</a>" + "</br>"
+                        write_word(response["words"][i])
                     }
                 },
                 error: function (error){
@@ -31,5 +37,6 @@
 <p id="words">
 
 </p>
+<button onclick="">Add Word</button>
 
 {% endblock %}

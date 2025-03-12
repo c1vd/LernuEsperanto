@@ -75,8 +75,6 @@ def dictionary_page():
 
 
 # Words and Books pages
-
-# TODO: add editing of translations of words by users
 @app.route("/dictionary/<id>")
 def word_page(id):
     cursor.execute(f"SELECT id, word, translations FROM words WHERE id={id}")
@@ -94,7 +92,7 @@ def read_book(id):
         return flask.redirect("/")
 
 
-# Editing of words
+# Editing and adding of words
 @app.route("/edit_word", methods=["POST"])
 def edit_word():
     if is_authenticated():
@@ -103,6 +101,17 @@ def edit_word():
         connection.commit()
     return json.dumps({"status": "OK"})
 
+@app.route("/add_word", methods=["POST"])
+def add_word():
+    if not is_authenticated():
+        return json.dumps({"status": "OK"})
+    word = post("word")
+    translations = post("translations")
+    cursor.execute(f"SELECT id FROM words WHERE word='{word}'")
+    if cursor.fetchone():
+        return json.dumps({"status": "OK"})
+    cursor.execute(f"INSERT INTO words(word, translations) VALUES('{word}', '{translations}')")
+    return json.dumps({"status": "OK"})
 
 # Login system
 @app.route("/register", methods=["GET", "POST"])
@@ -186,7 +195,7 @@ def delete_book():
     if not is_authenticated():
         return flask.redirect("/")
     cursor.execute(
-        f"DELETE FROM books WHERE user='{session.get('username')}' AND id = '{post('id')}'")
+        f"DELETE FROM books WHERE id = {post('id')} AND user='{session.get('username')}'")
     connection.commit()
     return json.dumps({"status": 'OK'})
 
