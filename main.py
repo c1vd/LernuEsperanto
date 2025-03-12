@@ -4,6 +4,9 @@ import time
 from flask import session
 import flask
 from werkzeug.security import generate_password_hash, check_password_hash
+import urllib.request
+
+external_ip = urllib.request.urlopen('https://ident.me').read().decode('utf8')
 
 connection = sqlite3.connect("database.db", check_same_thread=False)
 cursor = connection.cursor()
@@ -97,9 +100,10 @@ def read_book(id):
 def edit_word():
     if is_authenticated():
         print(post("translations"), post("id"))
-        cursor.execute(f"UPDATE words SET translations='{post('translations')}' WHERE id={post('id')}")
+        cursor.execute(f"UPDATE words SET translations=LOWER('{post('translations')}') WHERE id={post('id')}")
         connection.commit()
     return json.dumps({"status": "OK"})
+
 
 @app.route("/add_word", methods=["POST"])
 def add_word():
@@ -107,11 +111,13 @@ def add_word():
         return json.dumps({"status": "OK"})
     word = post("word")
     translations = post("translations")
-    cursor.execute(f"SELECT id FROM words WHERE word='{word}'")
+    cursor.execute(f"SELECT id FROM words WHERE LOWER(word)=LOWER('{word}')")
     if cursor.fetchone():
         return json.dumps({"status": "OK"})
-    cursor.execute(f"INSERT INTO words(word, translations) VALUES('{word}', '{translations}')")
+    cursor.execute(f"INSERT INTO words(word, translations) VALUES(LOWER('{word}'), LOWER('{translations}'))")
+    connection.commit()
     return json.dumps({"status": "OK"})
+
 
 # Login system
 @app.route("/register", methods=["GET", "POST"])
@@ -246,6 +252,7 @@ def get_unverified_books():
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    print(type(external_ip))
+    app.run(host="0.0.0.0", debug=True)
     cursor.close()
     connection.close()

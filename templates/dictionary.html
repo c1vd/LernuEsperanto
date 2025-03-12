@@ -2,26 +2,33 @@
 {% block content %}
 <script>
     async function add_word(){
-        
+        $.ajax({
+            url: "/add_word",
+            type: "POST",
+            data: {"word": $("#word").val(), "translations": $("#translations").val()},
+            success: function(response){location.reload()},
+            error: function(error){console.log(error)}
+        })
     }
-    async function write_word(word_data){
-        document.getElementById("words").innerHTML += "<a href='/dictionary/" +word_data[0] + "'>" + word_data[1] + " - " + word_data[2] + "</a>" + "</br>"
+    async function write_word(word_data) {
+        document.getElementById("words").innerHTML += "<a href='/dictionary/" + word_data[0] + "'>" + word_data[1] + " - " + word_data[2] + "</a>" + "</br>"
     }
-    async function get_list_of_words(){
+
+    async function get_list_of_words() {
         console.log(document.getElementById("word_to_find").value)
         $.ajax({
                 type: "POST",
                 url: "/find_words",
                 data: {"word_to_find": document.getElementById("word_to_find").value},
-                success: function (response){
+                success: function (response) {
                     response = JSON.parse(response)
                     console.log(response["words"])
                     document.getElementById("words").innerHTML = ""
-                    for(var i = 0; i < response["words"].length; i++){
+                    for (var i = 0; i < response["words"].length; i++) {
                         write_word(response["words"][i])
                     }
                 },
-                error: function (error){
+                error: function (error) {
                     console.log(error)
                     console.log("Error")
                 }
@@ -37,6 +44,11 @@
 <p id="words">
 
 </p>
-<button onclick="">Add Word</button>
+
+{% if session.get("is_authenticated") %}
+Добавление нового слова
+<button onclick="add_word()">Add Word</button>
+<input id="word"><input id="translations">
+{% endif %}
 
 {% endblock %}
