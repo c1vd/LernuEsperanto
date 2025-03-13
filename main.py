@@ -4,9 +4,6 @@ import time
 from flask import session
 import flask
 from werkzeug.security import generate_password_hash, check_password_hash
-import urllib.request
-
-external_ip = urllib.request.urlopen('https://ident.me').read().decode('utf8')
 
 connection = sqlite3.connect("database.db", check_same_thread=False)
 cursor = connection.cursor()
@@ -47,6 +44,27 @@ def is_admin():
     if not data:
         return False
     return bool(data[0])
+
+
+# Decorators
+def admin_required(func):
+    def decorated_function(*args, **kwargs):
+        if not is_admin():
+            return flask.redirect("/")
+        return func(*args, **kwargs)
+
+    decorated_function.__name__ = func.__name__
+    return decorated_function
+
+
+def authentication_required(func):
+    def decorated_function(*args, **kwargs):
+        if not is_authenticated():
+            return flask.redirect("/")
+        return func(*args, **kwargs)
+
+    decorated_function.__name__ = func.__name__
+    return decorated_function
 
 
 # Main page
@@ -181,9 +199,8 @@ def find_books():
 
 # Uploading and deleting books by users
 @app.route("/upload_book", methods=["GET", "POST"])
+@authentication_required
 def upload_book():
-    if not is_authenticated():
-        return flask.redirect("/")
     if flask.request.method == "POST":
         if "file" not in flask.request.files:
             return flask.redirect("/upload_book")
@@ -197,9 +214,8 @@ def upload_book():
 
 
 @app.route("/delete_book", methods=["POST"])
+@authentication_required
 def delete_book():
-    if not is_authenticated():
-        return flask.redirect("/")
     cursor.execute(
         f"DELETE FROM books WHERE id = {post('id')} AND user='{session.get('username')}'")
     connection.commit()
@@ -208,34 +224,30 @@ def delete_book():
 
 # Users and admins panels
 @app.route("/admin")
+@admin_required
 def admin_panel():
-    if not is_admin():
-        return flask.redirect("/")
     return flask.render_template("admin.html")
 
 
 @app.route("/user_panel")
+@authentication_required
 def user_panel():
-    if not is_authenticated():
-        return flask.redirect("/")
     books = cursor.execute(f"SELECT id, name_of_book, author FROM books WHERE user = '{session['username']}'")
     return flask.render_template("user_panel.html", books=books)
 
 
 # Functions that used by admins
 @app.route("/approve_book", methods=["POST"])
+@admin_required
 def approve_book():
-    if not is_admin():
-        return flask.redirect("/")
     cursor.execute(f"UPDATE books SET is_verified=1 WHERE id='{post("id")}'")
     connection.commit()
     return json.dumps({"status": "OK"})
 
 
 @app.route("/admin_delete_book", methods=["POST"])
+@admin_required
 def admin_delete_book():
-    if not is_admin():
-        return flask.redirect("/")
     cursor.execute(
         f"DELETE FROM books WHERE id='{post('id')}'")
     connection.commit()
@@ -243,16 +255,14 @@ def admin_delete_book():
 
 
 @app.route("/get_unverified_books", methods=["POST"])
+@admin_required
 def get_unverified_books():
-    if not is_admin():
-        return flask.redirect("/")
     cursor.execute("SELECT id, name_of_book, description, author FROM books WHERE NOT is_verified")
     books = cursor.fetchall()
     return json.dumps({"status": 'OK', "books": books})
 
 
 if __name__ == "__main__":
-    print(type(external_ip))
     app.run(host="0.0.0.0", debug=True)
     cursor.close()
     connection.close()
