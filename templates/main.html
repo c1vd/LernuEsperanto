@@ -110,6 +110,9 @@
                        aria-expanded="false">Account</a>
                     <ul class="dropdown-menu" aria-labelledby="dropdown2">
                         <li><a class="dropdown-item" href="/user_panel">User Panel</a></li>
+                        {% if is_admin() %}
+                        <li><a class="dropdown-item" href="/admin">Admin Panel</a></li>
+                        {% endif %}
                         <li>
                             <button onclick="logout()" type="button" class="btn btn-outline-success me-2">Logout
                             </button>
