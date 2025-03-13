@@ -104,9 +104,20 @@
                 <input name="book_name" class="form-control" type="text" placeholder="Search" aria-label="Search">
             </form>
             {% if session.get("is_authenticated") %}
-            <div class="col-md-2 text-end">
-                <button onclick="logout()" type="button" class="btn btn-outline-success me-2">Logout</button>
-            </div>
+            <ul style="width: 20%;" class="navbar-nav me-auto mb-2 mb-lg-0">
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="dropdown2" data-bs-toggle="dropdown"
+                       aria-expanded="false">Account</a>
+                    <ul class="dropdown-menu" aria-labelledby="dropdown2">
+                        <li><a class="dropdown-item" href="/user_panel">User Panel</a></li>
+                        <li>
+                            <button onclick="logout()" type="button" class="btn btn-outline-success me-2">Logout
+                            </button>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+
             {% endif %}
             {% if not session.get("is_authenticated") %}
             <div class="col-md-2 text-end">

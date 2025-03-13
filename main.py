@@ -148,6 +148,7 @@ def register():
                 f"SELECT name FROM users WHERE name = '{post('username')}'").fetchone()
             if data:
                 return flask.redirect("/register")
+
             cursor.execute(
                 f"INSERT INTO users(name, password, is_admin) VALUES ('{post('username')}', '{generate_password_hash(post('password'))}', false)")
             connection.commit()
