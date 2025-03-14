@@ -13,7 +13,7 @@ app = flask.Flask("esperanto_app")
 
 app.config["SECRET_KEY"] = generate_password_hash(f"{time.perf_counter()}")
 
-
+path = "C:/Users/Anarchy/PycharmProjects/IndividualProject_application/"
 # Error handlers
 @app.errorhandler(404)
 def error_404(error):
@@ -211,7 +211,7 @@ def upload_book():
             f"INSERT INTO books(name_of_book, description, author, user, is_verified) VALUES ('{post("name_of_book")}', '{post("description")}', '{post("author")}', '{session['username']}', 0)")
         connection.commit()
         cursor.execute("SELECT id FROM books ORDER BY id DESC LIMIT 1")
-        file.save(f"C:/Users/Anarchy/PycharmProjects/IndividualProject_application/books/{cursor.fetchone()[0]}.pdf")
+        file.save(path + f"books/{cursor.fetchone()[0]}.pdf")
     return flask.render_template("upload_book.html")
 
 
@@ -222,8 +222,8 @@ def delete_book():
     cursor.execute(
         f"DELETE FROM books WHERE id = {post('id')} AND user='{session.get('username')}'")
     connection.commit()
-    if os.path.exists(f"C:/Users/Anarchy/PycharmProjects/IndividualProject_application/books/{post('id')}.pdf"):
-        os.remove(f"C:/Users/Anarchy/PycharmProjects/IndividualProject_application/books/{post('id')}.pdf")
+    if os.path.exists(path + f"books/{post('id')}.pdf"):
+        os.remove(path + f"books/{post('id')}.pdf")
     return json.dumps({"status": 'OK'})
 
 
@@ -259,8 +259,8 @@ def admin_delete_book():
     cursor.execute(
         f"DELETE FROM books WHERE id='{post('id')}'")
     connection.commit()
-    if os.path.exists(f"C:/Users/Anarchy/PycharmProjects/IndividualProject_application/books/{post('id')}.pdf"):
-        os.remove(f"C:/Users/Anarchy/PycharmProjects/IndividualProject_application/books/{post('id')}.pdf")
+    if os.path.exists(path + f"books/{post('id')}.pdf"):
+        os.remove(path + f"books/{post('id')}.pdf")
     return json.dumps({"status": 'OK'})
 
 
