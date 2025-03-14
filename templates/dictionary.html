@@ -10,8 +10,17 @@
             error: function(error){console.log(error)}
         })
     }
+    async function admin_delete_word(id){
+        $.ajax({
+            url: "/admin_delete_word",
+            type: "POST",
+            data: {"id": id},
+            success: function(response){location.reload()},
+            error: function(error){console.log(error)}
+        })
+    }
     async function write_word(word_data) {
-        document.getElementById("words").innerHTML += "<a href='/dictionary/" + word_data[0] + "'>" + word_data[1] + " - " + word_data[2] + "</a>" + "</br>"
+        document.getElementById("words").innerHTML += "<a href='/dictionary/" + word_data[0] + "'>" + word_data[1] + " - " + word_data[2] + "</a>" + "</br>" {% if is_admin() %} + "<button onclick='admin_delete_word(" + word_data[0] + ")'>Delete</button>" {% endif %}
     }
 
     async function get_list_of_words() {

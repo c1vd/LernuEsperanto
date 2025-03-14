@@ -6,15 +6,18 @@
             url: "/delete_book",
             type: "POST",
             data: {"id": id},
-            success: function (response){},
+            success: function (response){location.reload()},
             error: function (error){console.log(error)}
         })
-        window.location.href = "/my_books"
-        location.reload()
     }
 </script>
 {% for book in books %}
 <a href="/book/{{ book[0] }}">{{ book[1] }} - {{ book[2] }}</a>
+{% if book[3] %}
+Verified
+{% else %}
+In process of checking
+{% endif %}
 <button onclick="delete_book({{ book[0] }})">Delete</button>
 {% endfor %}
 {% endblock %}

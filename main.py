@@ -1,4 +1,5 @@
 import json
+import os
 import sqlite3
 import time
 from flask import session
@@ -215,11 +216,14 @@ def upload_book():
 
 
 @app.route("/delete_book", methods=["POST"])
-@authentication_required
 def delete_book():
+    if not is_authenticated():
+        return json.dumps({"status": "OK"})
     cursor.execute(
         f"DELETE FROM books WHERE id = {post('id')} AND user='{session.get('username')}'")
     connection.commit()
+    if os.path.exists(f"C:/Users/Anarchy/PycharmProjects/IndividualProject_application/books/{post('id')}.pdf"):
+        os.remove(f"C:/Users/Anarchy/PycharmProjects/IndividualProject_application/books/{post('id')}.pdf")
     return json.dumps({"status": 'OK'})
 
 
@@ -233,31 +237,46 @@ def admin_panel():
 @app.route("/user_panel")
 @authentication_required
 def user_panel():
-    books = cursor.execute(f"SELECT id, name_of_book, author FROM books WHERE user = '{session['username']}'")
+    books = cursor.execute(
+        f"SELECT id, name_of_book, author, is_verified FROM books WHERE user='{session.get('username')}'").fetchall()
     return flask.render_template("user_panel.html", books=books)
 
 
 # Functions that used by admins
 @app.route("/approve_book", methods=["POST"])
-@admin_required
 def approve_book():
+    if not is_admin():
+        return json.dumps({"status": "OK"})
     cursor.execute(f"UPDATE books SET is_verified=1 WHERE id='{post("id")}'")
     connection.commit()
     return json.dumps({"status": "OK"})
 
 
 @app.route("/admin_delete_book", methods=["POST"])
-@admin_required
 def admin_delete_book():
+    if not is_admin():
+        return json.dumps({"status": "OK"})
     cursor.execute(
         f"DELETE FROM books WHERE id='{post('id')}'")
+    connection.commit()
+    if os.path.exists(f"C:/Users/Anarchy/PycharmProjects/IndividualProject_application/books/{post('id')}.pdf"):
+        os.remove(f"C:/Users/Anarchy/PycharmProjects/IndividualProject_application/books/{post('id')}.pdf")
+    return json.dumps({"status": 'OK'})
+
+
+@app.route("/admin_delete_word", methods=["POST"])
+def admin_delete_word():
+    if not is_admin():
+        return json.dumps({"status": "OK"})
+    cursor.execute(f'DELETE FROM words WHERE id={post("id")}')
     connection.commit()
     return json.dumps({"status": 'OK'})
 
 
 @app.route("/get_unverified_books", methods=["POST"])
-@admin_required
 def get_unverified_books():
+    if not is_admin():
+        return json.dumps({"status": "OK"})
     cursor.execute("SELECT id, name_of_book, description, author FROM books WHERE NOT is_verified")
     books = cursor.fetchall()
     return json.dumps({"status": 'OK', "books": books})
