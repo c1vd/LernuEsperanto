@@ -283,7 +283,7 @@ def get_unverified_books():
 
 
 if __name__ == "__main__":
-    app.jinja_env.globals.update(is_admin=is_admin)
+    app.jinja_env.globals.update(is_admin=is_admin, is_authenticated=is_authenticated)
     app.run(host="0.0.0.0", debug=True)
     cursor.close()
     connection.close()
