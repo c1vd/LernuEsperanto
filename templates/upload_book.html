@@ -1,10 +1,10 @@
 {% extends "main.html" %}
 {% block content %}
 <form action="/upload_book" method="POST" enctype=multipart/form-data>
-    <input name="name_of_book" required>
-    <input name="description" required>
-    <input name="author" required>
+    <input name="name_of_book" placeholder="Title" required>
+    <input name="description" placeholder="Description" type="text" required>
+    <input name="author" placeholder="Author" required>
     <input type="file" name="file" required>
-    <button type="submit">Click</button>
+    <button type="submit">Upload</button>
 </form>
 {% endblock %}

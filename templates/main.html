@@ -49,7 +49,9 @@
             width: 100%;
             z-index: 9999;
         }
+        footer a{
 
+        }
         /* Основное содержимое */
         .main {
             flex-grow: 1;
@@ -85,11 +87,6 @@
                 <li class="nav-item">
                     <a class="nav-link" href="/dictionary">Dictionary</a>
                 </li>
-                {% if session.get("is_authenticated") %}
-                <li class="nav-item">
-                    <a class="nav-link" href="/upload_book">Upload Book</a>
-                </li>
-                {% endif %}
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" id="dropdown1" data-bs-toggle="dropdown"
                        aria-expanded="false">Other</a>
@@ -141,19 +138,24 @@
 </div>
 <footer class="sticky-footer">
     <div class="row">
-        <div class="col-sm-2">
+        <div class="col-sm-3">
 
         </div>
         <div class="col-sm-2">
-            1
+            About Project<br>
+            <a href="/history">History of Esperanto</a><br>
+            <a href="/grammar">Esperanto`s Grammar</a><br>
+            <a href="/help_us">How you can help us</a><br>
         </div>
         <div class="col-sm-2">
-            1
+            Contact us <br>
+            VK:
+
         </div>
         <div class="col-sm-2">
-            1
+            <a href="/">Home</a><br>
         </div>
-        <div class="col-sm-2">
+        <div class="col-sm-3">
 
         </div>
     </div>
